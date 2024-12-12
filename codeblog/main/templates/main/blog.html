@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeBlog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        header button {
+            background-color: white;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        header button:hover {
+            background-color: #45a049;
+            color: white;
+        }
+        main {
+            padding: 20px;
+            padding-top: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .sort-options {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .sort-options label {
+            padding-top: 8px;
+            margin-right: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        .sort-options select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            background-color: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .sort-options select:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.5);
+        }
+        .post-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .post-list li {
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .post-list li:hover {
+            background-color: #f1f1f1;
+        }
+        .post-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .post-stats {
+            font-size: 14px;
+            color: #555;
+        }
+        .post-date {
+            font-size: 12px;
+            color: #888;
+        }
+        .post-list li a {
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        a:link { color: white; }
+        a:visited  { color: white; }
+        a:hover  { color: white; }
+        a:active  { color: white; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sortValue = urlParams.get('sort') || 'date';
+            document.getElementById('sort-select').value = sortValue;
+
+            const postList = document.querySelector('.post-list');
+            const posts = Array.from(postList.children);
+
+            posts.sort((a, b) => {
+                const getStat = (post, statType) => {
+                    const statsText = post.querySelector('.post-stats').textContent;
+                    const match = statsText.match(new RegExp(`${statType}: (\\d+)`));
+                    return match ? parseInt(match[1], 10) : 0;
+                };
+
+                if (sortValue === 'views') {
+                    return getStat(b, '조회수') - getStat(a, '조회수');
+                } else if (sortValue === 'recommendations') {
+                    return getStat(b, '추천수') - getStat(a, '추천수'); 
+                }else if (sortValue === 'comments') {
+                    return getStat(b, '댓글수') - getStat(a, '댓글수');
+                } else {
+                    const dateA = new Date(a.querySelector('.post-date').textContent);
+                    const dateB = new Date(b.querySelector('.post-date').textContent);
+                    return dateB - dateA;
+                }
+            });
+
+            posts.forEach(post => postList.appendChild(post));
+        });
+        function handleSortChange() {
+            const sortValue = document.getElementById('sort-select').value;
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('sort', sortValue);
+            window.location.search = urlParams.toString();
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <a href="/" style="text-decoration-line: none;" ><h1>CodeBlog</h1></a>
+        <a href="new_post/"><button>글쓰기</button></a>
+    </header>
+    <main>
+        <div class="sort-options">
+            <label for="sort-select">정렬: </label>
+            <select id="sort-select" onchange="handleSortChange()">
+                <option value="date">날짜순</option>
+                <option value="views">조회순</option>
+                <option value="recommendations">추천순</option>
+                <option value="comments">댓글순</option>
+            </select>
+        </div>
+        <ul class="post-list">
+            {% for list in postlist %}
+            <li>
+                <a href="view/{{list.pk}}">
+                <div class="post-details">
+                    <p class="post-title">{{list.postTitle}}</p>
+                    <p class="post-stats">추천수: {{list.postLike}} | 댓글수: {{list.postCom}} | 조회수: {{list.postView}}</p>
+                    <p class="post-date">{{list.pub_date.year}}-{{list.pub_date.month}}-{{list.pub_date.day}} {{list.pub_date.hour}}:{{list.pub_date.minute}}</p>
+                </div></a>
+            </li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

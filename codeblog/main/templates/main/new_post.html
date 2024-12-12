@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    <title>CodeBlog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        header button {
+            background-color: white;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 13.333px;
+        }
+        header button:hover {
+            background-color: #45a049;
+            color: white;
+        }
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, textarea {
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            min-height: 150px;
+            resize: none;
+        }
+        textarea#code {
+            border: 2px solid #ddd;
+            margin-bottom: 25px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #language-select {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            transition: border-color 0.3s ease;
+        }
+        #language-select:focus {
+            border-color: #4CAF50;
+        }
+        .CodeMirror {
+            border-radius: 8px !important;
+            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            margin-bottom: 25px;
+            height:400px;
+        }
+        .CodeMirror-lines {
+            padding: 8px;
+        }
+        a:link { color: white; }
+        a:visited  { color: white; }
+        a:hover  { color: white; }
+        a:active  { color: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" style="text-decoration-line: none;" ><h1>CodeBlog</h1></a>
+        <a href="/board"><button>돌아가기</button></a>
+    </header>
+    <main>
+        <form method="POST" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <label for="title">글 제목</label>
+            <input type="text" id="title" name="postname" placeholder="제목을 입력하세요" required>
+
+            <label for="content">글 내용</label>
+            <textarea id="content" name="contents" placeholder="내용을 입력하세요" required oninput="autoResize(this)"></textarea>
+
+            <label for="code">코드</label>
+            <select id="language-select" name="language" onchange="updateEditorMode()">
+                <option value="clike">C / C++</option>
+                <option value="python">Python</option>
+            </select>
+            <textarea id="code" name="codes" placeholder="코드를 입력하세요" oninput="autoResize(this)"></textarea>
+
+            <button type="submit">등록하기</button>
+        </form>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <script>
+        let editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: "clike", // 기본적으로 C/C++로 설정
+            theme: "dracula",
+            indentUnit: 4,
+            lineWrapping: true,
+            
+        });
+
+        function updateEditorMode() {
+            let language = document.getElementById("language-select").value;
+            if (language === "clike") {
+                editor.setOption("mode", "clike");
+            } else if (language === "python") {
+                editor.setOption("mode", "python");
+            }
+        }
+        // 코드 입력창 자동 크기 조정
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight+2) + 'px';
+        }
+        // 글 제목, 내용, 코드 길이 검증 함수
+        function validateForm() {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const code = editor.getValue(); // CodeMirror에서 코드 가져오기
+
+            // 글 제목 50자 제한
+            if (title.length > 50) {
+                alert("글 제목은 50자를 넘을 수 없습니다.");
+                return false;
+            }
+
+            // 글 내용 1000자 제한
+            if (content.length > 1000) {
+                alert("글 내용은 1000자를 넘을 수 없습니다.");
+                return false;
+            }
+
+            // 코드 1000자 제한
+            if (code.length > 1000) {
+                alert("코드는 1000자를 넘을 수 없습니다.");
+                return false;
+            }
+
+            // 모든 조건을 통과하면 폼 제출
+            return true;
+        }
+    </script>
+</body>
+</html>

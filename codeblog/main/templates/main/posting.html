@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 보기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        header button {
+            background-color: white;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 13.333px;
+        }
+        header button:hover {
+            background-color: #45a049;
+            color: white;
+        }
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .comment-main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            margin-top: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .comment-main2 {
+            padding: 20px;
+            max-width: 800px;
+            margin: 10px auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            margin-top: 0px;
+        }
+        .metadata {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        .metadata span {
+            margin-right: 15px;
+        }
+        .content {
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .CodeMirror {
+            border-radius: 8px !important;
+            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            margin-bottom: 25px;
+            height:400px;
+        }
+        .CodeMirror-lines {
+            padding: 8px;
+        }
+         .like-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+        }
+        .like-button:hover {
+            background-color: #45a049;
+        }
+        .like-button:disabled {
+            background-color: #b6d7a8;
+            cursor: not-allowed;
+        }
+        .container{
+            display: flex;
+            justify-content: center;
+        }.container2{
+            display: flex;
+            justify-content: right;
+        }
+        .comment-section {
+            margin-top: 40px;
+            max-width: 840px;
+            margin: 0px auto;
+        }
+        .comment-list {
+            list-style: none;
+            padding: 0;
+        }
+        textarea {
+            resize: vertical;
+            font-family: Consolas, monospace;
+            background-color: #ffffff;
+            min-height: 75px;
+            resize: none;
+        }
+        input, textarea {
+            margin-bottom: 0px;
+            padding: 0px 0px;
+            font-size: 16px;
+            border: 1px solid #ffffff;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #ffffff;
+            outline: none;
+        }
+        .comment-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 7px 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .comment-button:hover {
+            background-color: #45a049;
+        }
+        .comment-button:disabled {
+            background-color: #b6d7a8;
+            cursor: not-allowed;
+        }
+        a:link { color: white; }
+        a:visited  { color: white; }
+        a:hover  { color: white; }
+        a:active  { color: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" style="text-decoration-line: none;" ><h1>CodeBlog</h1></a>
+        <a href="/board"><button>돌아가기</button></a>
+    </header>
+    <main>
+        <h2 id="post-title">{{post.postTitle}}</h2>
+        <div class="metadata">
+            <span id="views">조회수: {{post.postView}}</span>
+            <span id="likes">추천수: {{post.postLike}}</span>
+            <span id="comments">댓글수: {{post.postCom}}</span>
+            <span id="post-date">{{post.pub_date.year}}-{{post.pub_date.month}}-{{post.pub_date.day}} {{post.pub_date.hour}}:{{post.pub_date.minute}}</span>
+        </div>
+        <div class="content" id="post-content">
+            {{post.postText}}
+        </div>
+        <div class="content">
+            <textarea id="code" name="code">{{post.postCode}}</textarea>
+        </div>
+        <div class="container">
+            
+            <form method="POST">
+                {% csrf_token %}
+                <input type="submit" class="like-button" id="like-button" value="추천">
+            </form>
+        </div>
+        
+        <p id="language" style="display: none;">{{post.postCode_language}}</p>
+    </main>
+    <div class="comment-section">
+        <h3>댓글({{post.postCom}})</h3>
+        
+        <ul class="comment-list">
+            {% for comment in post.comments.all %}
+            <li>
+                <div class="comment-main2">{{ comment.text }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="comment-main">
+            <form method="POST">
+                {% csrf_token %}
+                <textarea name="comment" class="comment-input" placeholder="댓글을 작성하세요"></textarea>
+                <div class="container2"><button type="submit" class="comment-button">댓글 작성</button></div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <script>
+        
+        let codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            mode: "clike", 
+            theme: "dracula",
+            indentUnit: 4,
+            lineWrapping: true,
+            readOnly: true,
+        });
+
+        let language = document.getElementById("language").innerText;
+        if (language == "clike") {
+            codeMirrorEditor.setOption("mode", "clike");
+        } else if (language == "python") {
+            codeMirrorEditor.setOption("mode", "python");
+        }
+    </script>
+</body>
+</html>

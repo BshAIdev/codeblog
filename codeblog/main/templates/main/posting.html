@@ -197,6 +197,7 @@
         <div class="container">
             
             <form method="POST">
+                {% csrf_token %}
                 <input type="submit" class="like-button" id="like-button" value="추천">
             </form>
         </div>
@@ -215,6 +216,7 @@
         </ul>
         <div class="comment-main">
             <form method="POST">
+                {% csrf_token %}
                 <textarea name="comment" class="comment-input" placeholder="댓글을 작성하세요"></textarea>
                 <div class="container2"><button type="submit" class="comment-button">댓글 작성</button></div>
             </form>

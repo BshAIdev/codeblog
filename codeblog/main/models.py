@@ -13,14 +13,14 @@ class Post(models.Model):
 
     def Like(self):
         self.postLike += 1
-        self.postView -= 2
+        self.postView -= 1
         self.save()
     def View(self):
         self.postView += 1
         self.save()
     def Com(self):
         self.postCom += 1
-        self.postView -= 2
+        self.postView -= 1
         self.save()
 
     def __str__(self):
